@@ -58,7 +58,7 @@ pm_version get_version(pm_handle *handle) {
     }
 
     cJSON_Delete(json);
-    num_nodes = nnodes;
+    *num_nodes = nnodes;
     return nodes;
  }
 
