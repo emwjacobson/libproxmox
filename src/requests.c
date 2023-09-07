@@ -1,8 +1,10 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <stdlib.h>
+#include <cJSON.h>
 #include "requests.h"
 #include "proxmox.h"
+#include "logging.h"
 
 CURL *curl_handle;
 
@@ -37,7 +39,7 @@ void requests_init() {
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, cb);
 }
 
-void make_req(pm_handle *handle, char *endpoint) {
+cJSON *make_req(pm_handle *handle, char *endpoint) {
     // Headers
     // "Authorization: PVEAPIToken=" + handle->authstring
     int auth_len = strlen(handle->authstring) + sizeof("Authorization: PVEAPIToken=");
@@ -55,7 +57,7 @@ void make_req(pm_handle *handle, char *endpoint) {
     char* url = malloc(sizeof(char) * url_len);
     snprintf(url, url_len, "%s%s", handle->baseurl, endpoint);
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-    printf("URL: %s\n", url);
+    PRINT_DEBUG("Making request to %s\n", url);
 
     struct memory chunk = {0};
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
@@ -63,27 +65,41 @@ void make_req(pm_handle *handle, char *endpoint) {
     // Make Request
     long response_code;
     CURLcode res = curl_easy_perform(curl_handle);
-    printf("Res: %i\n", res);
+    if (res != 0) {
+        PRINT_WARN("Got bad response code from CURL: %i\n", res);
+        return NULL;
+    }
     curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &response_code);
-    printf("Response Code: %li\n", response_code);
+    if (response_code != 200) {
+        PRINT_WARN("Got response code: %li\n", response_code);
+        return NULL;
+    }
 
-    printf("Data: %s\n", chunk.response);
+    PRINT_DEBUG("Got response code: %li\n", response_code);
+    PRINT_DEBUG("Got raw data: %s\n", chunk.response);
+
+    cJSON *json = cJSON_ParseWithLength(chunk.response, chunk.size);
 
     // Cleanup
+    free(chunk.response);
     curl_slist_free_all(list);
     free(url);
     free(auth_str);
+
+    return json;
 }
 
-void requests_get(pm_handle *handle, char *endpoint) {
+cJSON *requests_get(pm_handle *handle, char *endpoint) {
+    PRINT_DEBUG("Making GET request\n");
     curl_easy_setopt(curl_handle, CURLOPT_HTTPGET, 1L);
-    make_req(handle, endpoint);
+    return make_req(handle, endpoint);
 }
 
-void requests_post(pm_handle *handle, char *endpoint, char *data) {
+cJSON *requests_post(pm_handle *handle, char *endpoint, char *data) {
+    PRINT_DEBUG("Making POST request\n");
     curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
     curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
-    make_req(handle, endpoint);
+    return make_req(handle, endpoint);
 }
 
 void requests_cleanup() {
