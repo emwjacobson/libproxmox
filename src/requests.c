@@ -12,7 +12,7 @@ CURL *curl_handle;
 // https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
 struct memory {
     char *response;
-    size_t size;
+    long size;
 };
  
 static size_t cb(void *data, size_t size, size_t nmemb, void *clientp)
@@ -40,6 +40,8 @@ void requests_init() {
 }
 
 cJSON *make_req(pm_handle *handle, char *endpoint) {
+    cJSON *json;
+
     // Headers
     // "Authorization: PVEAPIToken=" + handle->authstring
     int auth_len = strlen(handle->authstring) + sizeof("Authorization: PVEAPIToken=");
@@ -67,19 +69,22 @@ cJSON *make_req(pm_handle *handle, char *endpoint) {
     CURLcode res = curl_easy_perform(curl_handle);
     if (res != 0) {
         PRINT_WARN("Got bad response code from CURL: %i\n", res);
-        return NULL;
+        json = NULL;
+        goto cleanup;
     }
     curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &response_code);
     if (response_code != 200) {
         PRINT_WARN("Got response code: %li\n", response_code);
-        return NULL;
+        json = NULL;
+        goto cleanup;
     }
 
     PRINT_DEBUG("Got response code: %li\n", response_code);
-    PRINT_DEBUG("Got raw data: %s\n", chunk.response);
+    PRINT_DEBUG("Got data size: %li\n", chunk.size);
 
-    cJSON *json = cJSON_ParseWithLength(chunk.response, chunk.size);
+    json = cJSON_ParseWithLength(chunk.response, chunk.size);
 
+cleanup:
     // Cleanup
     free(chunk.response);
     curl_slist_free_all(list);
