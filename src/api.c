@@ -19,9 +19,9 @@ pm_version get_version(pm_handle *handle) {
     cJSON *release = cJSON_GetObjectItem(data, "release");
     cJSON *version = cJSON_GetObjectItem(data, "version");
 
-    pm_version pm_version;
-    strncpy(pm_version.release, release->valuestring, PM_VERSION_LEN);
-    strncpy(pm_version.version, version->valuestring, PM_VERSION_LEN);
+    pm_version pm_version = {0};
+    strncpy(pm_version.release, release->valuestring, PM_VERSION_LEN-1);
+    strncpy(pm_version.version, version->valuestring, PM_VERSION_LEN-1);
 
     cJSON_Delete(json);
 
@@ -40,6 +40,7 @@ pm_version get_version(pm_handle *handle) {
 
     int nnodes = cJSON_GetArraySize(data);
     pm_node *nodes = malloc(sizeof(pm_node) * nnodes);
+    memset(nodes, 0, sizeof(pm_node) * nnodes);
 
     cJSON *json_node;
     int i=0;
@@ -47,11 +48,11 @@ pm_version get_version(pm_handle *handle) {
         nodes[i].maxcpu = cJSON_GetObjectItem(json_node, "maxcpu")->valueint;
         nodes[i].mem = cJSON_GetObjectItem(json_node, "mem")->valuedouble;
         nodes[i].maxmem = cJSON_GetObjectItem(json_node, "maxmem")->valuedouble;
-        strncpy(nodes[i].node, cJSON_GetObjectItem(json_node, "node")->valuestring, PM_NODENAME_LEN);
-        strncpy(nodes[i].id, cJSON_GetObjectItem(json_node, "id")->valuestring, PM_NODENAME_LEN);
+        strncpy(nodes[i].node, cJSON_GetObjectItem(json_node, "node")->valuestring, PM_NODENAME_LEN-1);
+        strncpy(nodes[i].id, cJSON_GetObjectItem(json_node, "id")->valuestring, PM_NODENAME_LEN-1);
         nodes[i].disk = cJSON_GetObjectItem(json_node, "disk")->valuedouble;
         nodes[i].maxdisk = cJSON_GetObjectItem(json_node, "maxdisk")->valuedouble;
-        strncpy(nodes[i].status, cJSON_GetObjectItem(json_node, "status")->valuestring, PM_NODENAME_LEN);
+        strncpy(nodes[i].status, cJSON_GetObjectItem(json_node, "status")->valuestring, PM_NODENAME_LEN-1);
         nodes[i].cpu = cJSON_GetObjectItem(json_node, "cpu")->valuedouble;
         nodes[i].uptime = cJSON_GetObjectItem(json_node, "uptime")->valueint;
         i++;
