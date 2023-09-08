@@ -4,9 +4,16 @@ project(proxmox
     LANGUAGES C
 )
 
+# Default log level
+if (NOT PM_DEBUG_LEVEL)
+  set(PM_DEBUG_LEVEL ERROR)
+endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPRINT_LEVEL=${PM_DEBUG_LEVEL}")
+
 # For static cJSON
 set(BUILD_SHARED_AND_STATIC_LIBS ON CACHE BOOL "Enable building cJSON static library")
 set(ENABLE_CJSON_TEST OFF CACHE BOOL "Disable building cJSON tests")
+
 
 find_package(CURL REQUIRED)
 add_subdirectory(lib/cJSON)
