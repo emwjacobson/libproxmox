@@ -33,13 +33,16 @@ pm_version get_version(pm_handle *handle) {
     cJSON *json = requests_get(handle, "/nodes");
     cJSON *data = cJSON_GetObjectItem(json, "data");
 
+    pm_node *nodes;
+
     if (!cJSON_IsArray(data)) {
         PRINT_WARN("Data is not an array\n");
-        return NULL;
+        nodes = NULL;
+        goto cleanup;
     }
 
     int nnodes = cJSON_GetArraySize(data);
-    pm_node *nodes = malloc(sizeof(pm_node) * nnodes);
+    nodes = malloc(sizeof(pm_node) * nnodes);
     memset(nodes, 0, sizeof(pm_node) * nnodes);
 
     cJSON *json_node;
@@ -58,8 +61,10 @@ pm_version get_version(pm_handle *handle) {
         i++;
     }
 
-    cJSON_Delete(json);
     *num_nodes = nnodes;
+
+cleanup:
+    cJSON_Delete(json);
     return nodes;
  }
 
@@ -80,8 +85,8 @@ bool nodes_wakeonlan(pm_handle *handle, char *node) {
 
     bool rtn = (json != NULL);
 
-    free(endpoint);
     cJSON_Delete(json);
+    free(endpoint);
 
     return rtn;
 }
@@ -103,8 +108,8 @@ bool nodes_shutdown(pm_handle *handle, char *node) {
 
     bool rtn = (json != NULL);
 
-    free(endpoint);
     cJSON_Delete(json);
+    free(endpoint);
 
     return rtn;
 }

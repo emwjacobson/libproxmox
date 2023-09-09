@@ -6,8 +6,7 @@
 #include "proxmox.h"
 #include "logging.h"
 
-CURL *curl_handle;
-
+CURL *curl_handle = NULL;
 
 // https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
 struct memory {
@@ -33,6 +32,7 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *clientp)
 }
 
 void requests_init() {
+    if (curl_handle != NULL) return;
     curl_handle = curl_easy_init();
 
     curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -85,7 +85,6 @@ cJSON *make_req(pm_handle *handle, char *endpoint) {
     json = cJSON_ParseWithLength(chunk.response, chunk.size);
 
 cleanup:
-    // Cleanup
     free(chunk.response);
     curl_slist_free_all(list);
     free(url);
@@ -95,12 +94,20 @@ cleanup:
 }
 
 cJSON *requests_get(pm_handle *handle, char *endpoint) {
+    if (curl_handle == NULL) {
+        PRINT_ERROR("Request made before requests initialized!");
+        return NULL;
+    }
     PRINT_DEBUG("Making GET request\n");
     curl_easy_setopt(curl_handle, CURLOPT_HTTPGET, 1L);
     return make_req(handle, endpoint);
 }
 
 cJSON *requests_post(pm_handle *handle, char *endpoint, char *data) {
+    if (curl_handle == NULL) {
+        PRINT_ERROR("Request made before requests initialized!");
+        return NULL;
+    }
     PRINT_DEBUG("Making POST request\n");
     curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
     curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
@@ -108,5 +115,6 @@ cJSON *requests_post(pm_handle *handle, char *endpoint, char *data) {
 }
 
 void requests_cleanup() {
+    if (curl_handle == NULL) return;
     curl_easy_cleanup(curl_handle);
 }
