@@ -42,22 +42,29 @@ pm_version get_version(pm_handle *handle) {
     }
 
     int nnodes = cJSON_GetArraySize(data);
-    nodes = malloc(sizeof(pm_node) * nnodes);
-    memset(nodes, 0, sizeof(pm_node) * nnodes);
+    nodes = calloc(nnodes, sizeof(pm_node));
 
     cJSON *json_node;
     int i=0;
+    pm_node *node;
     cJSON_ArrayForEach(json_node, data) {
-        nodes[i].maxcpu = cJSON_GetObjectItem(json_node, "maxcpu")->valueint;
-        nodes[i].mem = cJSON_GetObjectItem(json_node, "mem")->valuedouble;
-        nodes[i].maxmem = cJSON_GetObjectItem(json_node, "maxmem")->valuedouble;
-        strncpy(nodes[i].node, cJSON_GetObjectItem(json_node, "node")->valuestring, PM_NODENAME_LEN-1);
-        strncpy(nodes[i].id, cJSON_GetObjectItem(json_node, "id")->valuestring, PM_NODENAME_LEN-1);
-        nodes[i].disk = cJSON_GetObjectItem(json_node, "disk")->valuedouble;
-        nodes[i].maxdisk = cJSON_GetObjectItem(json_node, "maxdisk")->valuedouble;
-        strncpy(nodes[i].status, cJSON_GetObjectItem(json_node, "status")->valuestring, PM_NODENAME_LEN-1);
-        nodes[i].cpu = cJSON_GetObjectItem(json_node, "cpu")->valuedouble;
-        nodes[i].uptime = cJSON_GetObjectItem(json_node, "uptime")->valueint;
+        node = &nodes[i];
+
+        // From the API
+        node->maxcpu = get_valueint_or_neg1(json_node, "maxcpu");
+        node->mem = get_valuedouble_or_neg1(json_node, "mem");
+        node->maxmem = get_valuedouble_or_neg1(json_node, "maxmem");
+        strncpy(node->node, get_valuestring_or_null(json_node, "node"), PM_NODENAME_LEN-1);
+        strncpy(node->id, get_valuestring_or_null(json_node, "id"), PM_NODENAME_LEN-1);
+        node->disk = get_valuedouble_or_neg1(json_node, "disk");
+        node->maxdisk = get_valuedouble_or_neg1(json_node, "maxdisk");
+        strncpy(node->status, get_valuestring_or_null(json_node, "status"), PM_NODENAME_LEN-1);
+        node->cpu = get_valuedouble_or_neg1(json_node, "cpu");
+        node->uptime = get_valueint_or_neg1(json_node, "uptime");
+
+        // Calculated
+        node->is_online = (strncmp(node->status, "online", 6) == 0);
+
         i++;
     }
 

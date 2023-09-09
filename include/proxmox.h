@@ -17,6 +17,7 @@ typedef struct {
 
 #define PM_NODENAME_LEN 32
 typedef struct {
+    // Provided from API
     int maxcpu;
     long mem; // in bytes
     long maxmem; // in bytes
@@ -28,6 +29,9 @@ typedef struct {
     double cpu;
     int uptime;
     // char *ssl_fingerprint[95];
+
+    // Calculated
+    bool is_online;
 } pm_node;
 
 // auth.c

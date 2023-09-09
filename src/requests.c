@@ -118,3 +118,21 @@ void requests_cleanup() {
     if (curl_handle == NULL) return;
     curl_easy_cleanup(curl_handle);
 }
+
+int get_valueint_or_neg1(cJSON *json, char *item) {
+    cJSON *json_item = cJSON_GetObjectItem(json, item);
+    if (json_item == NULL) return -1;
+    return json_item->valueint;
+}
+
+double get_valuedouble_or_neg1(cJSON *json, char *item) {
+    cJSON *json_item = cJSON_GetObjectItem(json, item);
+    if (json_item == NULL) return -1;
+    return json_item->valuedouble;
+}
+
+char *get_valuestring_or_null(cJSON *json, char *item) {
+    cJSON *json_item = cJSON_GetObjectItem(json, item);
+    if (json_item == NULL) return NULL;
+    return json_item->valuestring; // Could this be a problem is used after cJSON free'd?
+}
