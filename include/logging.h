@@ -29,19 +29,19 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #if PRINT_LEVEL >= ERROR
-    #define PRINT_ERROR(format, ...) fprintf(stderr, B_RED "[ERROR] (%s %s:%i) " RESET format, __FILENAME__, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+    #define PRINT_ERROR(format, ...) fprintf(stderr, B_RED "[ERROR] (%s %s:%i) " RESET format, __FUNCTION__, __FILENAME__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #endif
 #if PRINT_LEVEL >= WARN
-    #define PRINT_WARN(format, ...) fprintf(stderr, B_YELLOW "[WARN] (%s %s:%i) " RESET format, __FILENAME__, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+    #define PRINT_WARN(format, ...) fprintf(stderr, B_YELLOW "[WARN] (%s %s:%i) " RESET format, __FUNCTION__, __FILENAME__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #endif
 #if PRINT_LEVEL >= INFO
-    #define PRINT_INFO(format, ...) fprintf(stderr, B_CYAN "[INFO] (%s %s:%i) " RESET format, __FILENAME__, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+    #define PRINT_INFO(format, ...) fprintf(stderr, B_CYAN "[INFO] (%s %s:%i) " RESET format, __FUNCTION__, __FILENAME__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #endif
 #if PRINT_LEVEL >= DEBUG
-    #define PRINT_DEBUG(format, ...) fprintf(stderr, CYAN "[DEBUG] (%s %s:%i) " RESET format, __FILENAME__, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+    #define PRINT_DEBUG(format, ...) fprintf(stderr, CYAN "[DEBUG] (%s %s:%i) " RESET format, __FUNCTION__, __FILENAME__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #endif
 #if PRINT_LEVEL >= TRACE
-    #define PRINT_TRACE(format, ...) fprintf(stderr, "[TRACE] (%s %s:%i) " format, __FILENAME__, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+    #define PRINT_TRACE(format, ...) fprintf(stderr, "[TRACE] (%s %s:%i) " format, __FUNCTION__, __FILENAME__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #endif
 
 #ifndef PRINT_ERROR

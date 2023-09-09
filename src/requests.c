@@ -79,8 +79,7 @@ cJSON *make_req(pm_handle *handle, char *endpoint) {
         goto cleanup;
     }
 
-    PRINT_DEBUG("Got response code: %li\n", response_code);
-    PRINT_DEBUG("Got data size: %li\n", chunk.size);
+    PRINT_DEBUG("Got response code: %li, size %li\n", response_code, chunk.size);
 
     json = cJSON_ParseWithLength(chunk.response, chunk.size);
 
