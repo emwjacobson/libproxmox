@@ -28,7 +28,14 @@ pm_version get_version(pm_handle *handle) {
     return pm_version;
 }
 
- pm_node *nodes(pm_handle *handle, int *num_nodes) {
+/**
+ * @brief Gets the nodes in the cluster
+ * 
+ * @param handle 
+ * @param num_nodes RETURN VALUE. Set to the number of nodes in the cluster
+ * @return pm_node* Pointer to array of pm_node elements. Must be free'd by the user
+ */
+pm_node *nodes(pm_handle *handle, int *num_nodes) {
     // GET /nodes
     cJSON *json = requests_get(handle, "/nodes");
     cJSON *data = cJSON_GetObjectItem(json, "data");
@@ -112,6 +119,31 @@ bool nodes_shutdown(pm_handle *handle, char *node) {
     snprintf(endpoint, endpoint_len, "/nodes/%s/status", node);
 
     cJSON *json = requests_post(handle, endpoint, "command=shutdown");
+
+    bool rtn = (json != NULL);
+
+    cJSON_Delete(json);
+    free(endpoint);
+
+    return rtn;
+}
+
+/**
+ * @brief Run vzdump jobs on a node, with options
+ * 
+ * @param handle 
+ * @param node The node to run the vzdump job on
+ * @param options Arguments to pass to the command. `key1=value1&key2=value2&key3...`
+ * @return true if successful
+ * @return false if failed
+ */
+bool nodes_vzdump(pm_handle *handle, char *node, char *options) {
+    // POST /nodes/%{NODE}/vzdump
+    int endpoint_len = strlen(node) + sizeof("/nodes//vzdump");
+    char *endpoint = malloc(sizeof(char) * endpoint_len);
+    snprintf(endpoint, endpoint_len, "/nodes/%s/vzdump", node);
+
+    cJSON *json = requests_post(handle, endpoint, options);
 
     bool rtn = (json != NULL);
 

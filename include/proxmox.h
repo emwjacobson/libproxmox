@@ -43,6 +43,7 @@ pm_version get_version(pm_handle *handle);
 pm_node *nodes(pm_handle *handle, int *num_nodes);
 bool nodes_wakeonlan(pm_handle *handle, char *node);
 bool nodes_shutdown(pm_handle *handle, char *node);
+bool nodes_vzdump(pm_handle *handle, char *node, char *options);
 // Can be used for not-yet-implemented endpoints
 char *raw_get(pm_handle *handle, char *endpoint);
 char *raw_post(pm_handle *handle, char *endpoint, char *data);
