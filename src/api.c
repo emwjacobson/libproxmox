@@ -125,6 +125,10 @@ bool nodes_shutdown(pm_handle *handle, char *node) {
 char *raw_get(pm_handle *handle, char *endpoint) {
     cJSON *json = requests_get(handle, endpoint);
 
+    if (json == NULL) {
+        return NULL;
+    }
+
     char *raw = cJSON_PrintUnformatted(json);
 
     cJSON_Delete(json);
@@ -134,6 +138,10 @@ char *raw_get(pm_handle *handle, char *endpoint) {
 
 char *raw_post(pm_handle *handle, char *endpoint, char *data) {
     cJSON *json = requests_post(handle, endpoint, data);
+    
+    if (json == NULL) {
+        return NULL;
+    }
 
     char *raw = cJSON_PrintUnformatted(json);
 

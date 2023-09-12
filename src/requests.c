@@ -75,6 +75,7 @@ cJSON *make_req(pm_handle *handle, char *endpoint) {
     curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &response_code);
     if (response_code != 200) {
         PRINT_WARN("Got response code: %li\n", response_code);
+        PRINT_WARN("%s\n", chunk.response);
         json = NULL;
         goto cleanup;
     }
